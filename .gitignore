@@ -3,7 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
-/billapi.js
+/.env.local
 .pnp.*
 .yarn/*
 !.yarn/patches
