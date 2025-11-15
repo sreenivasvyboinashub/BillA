@@ -1,65 +1,79 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  };
-
-  const handleUpload = async () => {
+  const handleUpload = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!file) return;
 
-    setLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    const form = new FormData();
-    form.append("file", file);
-
-    const res = await fetch("/api/parse", {
+    router.push(`/result?pending=true`);
+    fetch("/api/parse", {
       method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-
-    // Redirect to /result with JSON data encoded
-    window.location.href =
-      "/result?data=" + encodeURIComponent(JSON.stringify(data));
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        router.push(`/result?data=${encodeURIComponent(JSON.stringify(json))}`);
+      });
   };
 
   return (
-    <div style={{ padding: 30 }}>
-      <h1>Upload Bill</h1>
+    <main className="min-h-screen flex items-center justify-center px-6 bg-white">
+      <div className="max-w-xl w-full">
+        
+        <h1 className="text-3xl font-semibold text-black mb-6">
+          Upload Your Bill
+        </h1>
 
-      <input type="file" accept="image/*" onChange={handleFile} />
+        <form onSubmit={handleUpload}>
+          <label
+            htmlFor="bill"
+            className="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-xl p-10 cursor-pointer hover:border-black transition"
+          >
+            {!file && (
+              <p className="text-gray-600">
+                Click or drag an image here
+              </p>
+            )}
 
-      {preview && (
-        <div style={{ marginTop: 20 }}>
-          <img src={preview} width={300} />
-        </div>
-      )}
+            {file && (
+              <img
+                src={URL.createObjectURL(file)}
+                alt="preview"
+                className="rounded-lg w-full max-h-72 object-cover shadow"
+              />
+            )}
 
-      {file && (
-        <button
-          onClick={handleUpload}
-          style={{
-            marginTop: 20,
-            padding: "10px 20px",
-            background: "black",
-            color: "white",
-            borderRadius: 6,
-          }}
-        >
-          {loading ? "Processing..." : "Continue"}
-        </button>
-      )}
-    </div>
+            <input
+              id="bill"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setFile(e.target.files[0]);
+                }
+              }}
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={!file}
+            className="w-full bg-black text-white py-3 rounded-lg mt-6 text-lg disabled:bg-gray-400"
+          >
+            Continue →
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }
