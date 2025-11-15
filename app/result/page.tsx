@@ -6,49 +6,53 @@ export default function ResultPage() {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    // This runs only on the client
-    const params = new URLSearchParams(window.location.search);
-    const dataStr = params.get("data");
+    if (typeof window === "undefined") return;
 
-    if (dataStr) {
-      try {
-        setData(JSON.parse(dataStr));
-      } catch {
-        setData({ raw: dataStr });
-      }
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("data");
+
+    if (!raw) {
+      setData({ error: "No result received." });
+      return;
+    }
+
+    try {
+      setData(JSON.parse(raw));
+    } catch {
+      setData({ raw });
     }
   }, []);
 
   if (!data) {
-    return <div style={{ padding: 20 }}>Loading result...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-700">
+        Loading…
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: 30 }}>
-      <h1>Extracted Bill Data</h1>
+    <div className="min-h-screen bg-gray-50 px-4 py-6">
+      <div className="max-w-xl mx-auto">
+        
+        <h1 className="text-2xl font-bold text-black mb-4 text-center">
+          Extracted Bill Data
+        </h1>
 
-      <pre
-        style={{
-          background: "#f2f2f2",
-          padding: 20,
-          borderRadius: 6,
-          marginTop: 20,
-        }}
-      >
-        {JSON.stringify(data, null, 2)}
-      </pre>
+        <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+          <pre className="text-sm whitespace-pre-wrap break-all text-gray-800">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </div>
 
-      <button
-        style={{
-          marginTop: 20,
-          padding: "10px 20px",
-          background: "green",
-          color: "white",
-          borderRadius: 6,
-        }}
-      >
-        Save to Dashboard
-      </button>
+        <a
+          href="/upload"
+          className="block text-center mt-6 bg-black text-white py-3 rounded-lg text-lg"
+        >
+          Scan Another Bill
+        </a>
+
+      </div>
     </div>
   );
 }
