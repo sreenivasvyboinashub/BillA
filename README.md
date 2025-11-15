@@ -48,3 +48,9 @@ app/
 components/ - shared UI components
 lib/ - AI, AWS, DB utilities
 docs/ - architecture, schema, vision
+
+✔ Setup project structure
+◻ Build Upload Box UI
+◻ Add image preview on selection
+◻ Connect to /api/parse
+◻ Redirect to /result with AI JSON
