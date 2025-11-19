@@ -2,6 +2,26 @@
 
 import { useEffect, useState } from "react";
 
+function normalizeCategory(cat: string) {
+  if (!cat) return "Other";
+
+  const c = cat.toLowerCase();
+
+  if (c.includes("fuel")) return "Fuel";
+  if (c.includes("gas")) return "Fuel";
+  if (c.includes("grocery")) return "Groceries";
+  if (c.includes("grocerie")) return "Groceries";
+  if (c.includes("food")) return "Food";
+  if (c.includes("restaurant")) return "Food";
+  if (c.includes("petrol")) return "Fuel";
+  if (c.includes("shopping")) return "Apparel";
+  if (c.includes("medicine")) return "Medicine";
+  
+
+  return "Other";
+}
+
+
 export default function DashboardPage() {
   const [bills, setBills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,15 +56,27 @@ export default function DashboardPage() {
 
   // CATEGORY TOTALS
   const foodTotal = bills
-    .filter((b) => b.category === "Food")
+    .filter((b) => normalizeCategory(b.category) === "Food")
     .reduce((acc, b) => acc + toNum(b.total), 0);
 
   const fuelTotal = bills
-    .filter((b) => b.category === "Fuel")
+    .filter((b) => normalizeCategory(b.category) === "Fuel")
     .reduce((acc, b) => acc + toNum(b.total), 0);
 
   const groceryTotal = bills
-    .filter((b) => b.category === "Grocery")
+    .filter((b) => normalizeCategory(b.category) === "Groceries")
+    .reduce((acc, b) => acc + toNum(b.total), 0);
+
+  const misc = bills
+    .filter((b) => normalizeCategory(b.category) === "Other")
+    .reduce((acc, b) => acc + toNum(b.total), 0);
+  
+  const apparel = bills
+    .filter((b) => normalizeCategory(b.category) === "Apparel")
+    .reduce((acc, b) => acc + toNum(b.total), 0);
+  
+  const medicine = bills
+    .filter((b) => normalizeCategory(b.category) === "Medicine")
     .reduce((acc, b) => acc + toNum(b.total), 0);
 
   // MONTHLY SPENDING (This month)
@@ -131,6 +163,20 @@ export default function DashboardPage() {
               <p className="font-semibold text-green-700">Groceries</p>
               <p className="font-bold text-xl">${groceryTotal.toFixed(2)}</p>
             </div>
+            
+            <div className="bg-gray-50 p-4 rounded-xl border">
+              <p className="font-semibold text-green-700">Apparel</p>
+              <p className="font-bold text-xl">${apparel.toFixed(2)}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl border">
+              <p className="font-semibold text-green-700">Medicine</p>
+              <p className="font-bold text-xl">${medicine.toFixed(2)}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-xl border">
+              <p className="font-semibold text-green-700">Misc</p>
+              <p className="font-bold text-xl">${misc.toFixed(2)}</p>
+            </div>
+            
           </div>
         </div>
 
