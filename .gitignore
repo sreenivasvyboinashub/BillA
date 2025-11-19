@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 /.env.local
+/.env
 .pnp.*
 .yarn/*
 !.yarn/patches

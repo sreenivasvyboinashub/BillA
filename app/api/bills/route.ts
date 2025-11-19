@@ -1,9 +1,12 @@
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-  return NextResponse.json({ message: "Bills API coming soon" });
-}
+const prisma = new PrismaClient();
 
-export async function POST() {
-  return NextResponse.json({ message: "POST endpoint coming soon" });
+export async function GET() {
+  const bills = await prisma.bill.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json(bills);
 }

@@ -6,6 +6,7 @@ export default function ResultPage() {
   const [data, setData] = useState<any>(null);
   const [showJson, setShowJson] = useState(false);
 
+  // 1️⃣ Extract JSON from URL
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -24,9 +25,21 @@ export default function ResultPage() {
     }
   }, []);
 
+  // 2️⃣ AUTO-SAVE BILL TO DATABASE
+  useEffect(() => {
+    if (!data) return;
+    if (data.raw) return; // skip if raw error
+
+    fetch("/api/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).catch((err) => console.error("Database save failed:", err));
+  }, [data]);
+
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-700">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-700">
         Loading…
       </div>
     );
@@ -47,7 +60,7 @@ export default function ResultPage() {
   const catColor =
     categoryColors[data.category] || "bg-gray-100 text-gray-700";
 
-  // Icon Map
+  // Vendor Icons
   const vendorIcons: any = {
     "Circle K": "⛽",
     Walmart: "🛒",
@@ -60,26 +73,27 @@ export default function ResultPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 py-10 animate-fadeIn">
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-xl mx-auto">
 
         {/* HEADER */}
         <div className="text-center mb-8">
-          <div className="text-5xl">{vendorIcon}</div>
-          <h1 className="text-3xl font-bold text-black mt-2">Bill Summary</h1>
+          <div className="text-6xl">{vendorIcon}</div>
+          <h1 className="text-3xl font-bold text-black mt-3">Bill Summary</h1>
           <p className="text-gray-500 mt-1 text-lg">
             AI processed your bill with high accuracy.
           </p>
         </div>
 
-        {/* CARD */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 space-y-5 border border-gray-200 animate-slideUp">
+        {/* BILL CARD */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 space-y-6 border border-gray-200 animate-slideUp">
 
           {/* Vendor + Category */}
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-black">{data.vendor}</h2>
+            <h2 className="text-xl font-bold text-black">{data.vendor}</h2>
+
             {data.category && (
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${catColor}`}
+                className={`px-3 py-1 rounded-full text-sm font-semibold ${catColor}`}
               >
                 {data.category}
               </span>
@@ -88,18 +102,17 @@ export default function ResultPage() {
 
           {/* Date */}
           {data.date && (
-            <div className="text-gray-600 text-lg">
-              📅 {data.date}
+            <div className="text-gray-600 text-lg flex items-center gap-2">
+              📅 <span>{data.date}</span>
             </div>
           )}
 
-          {/* Divider */}
           <hr className="border-gray-300" />
 
-          {/* Items List */}
+          {/* ITEMS */}
           {data.items && data.items.length > 0 && (
             <div>
-              <h3 className="text-gray-800 font-semibold mb-2 text-lg">
+              <h3 className="text-gray-800 font-semibold mb-3 text-lg">
                 Items
               </h3>
 
@@ -121,8 +134,8 @@ export default function ResultPage() {
 
           <hr className="border-gray-300" />
 
-          {/* Totals + Payment Method */}
-          <div className="space-y-2 text-lg">
+          {/* TOTALS */}
+          <div className="space-y-3 text-lg">
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal</span>
               <span className="font-semibold">
@@ -154,20 +167,20 @@ export default function ResultPage() {
 
           {/* AI Confidence */}
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mt-3">
-            <p className="text-blue-700 font-medium">
-              🤖 AI Confidence: <span className="font-semibold">High</span>
+            <p className="text-blue-700 font-semibold">
+              🤖 AI Confidence: High
             </p>
             <p className="text-blue-600 text-sm">
-              Your bill was clear and easy to read.
+              Your bill had clear text and structure.
             </p>
           </div>
         </div>
 
-        {/* JSON Toggle */}
+        {/* JSON TOGGLE */}
         {!isRaw && (
           <button
             onClick={() => setShowJson(!showJson)}
-            className="w-full mt-6 bg-black text-white py-3 rounded-lg text-lg"
+            className="w-full mt-6 bg-black text-white py-3 rounded-xl text-lg font-medium transition hover:bg-gray-900"
           >
             {showJson ? "Hide Raw JSON" : "Show Raw JSON"}
           </button>
@@ -182,7 +195,7 @@ export default function ResultPage() {
         {/* Scan Again */}
         <a
           href="/upload"
-          className="block text-center mt-8 text-black underline text-lg"
+          className="block text-center mt-8 text-black underline text-lg font-medium"
         >
           Scan Another Bill →
         </a>
