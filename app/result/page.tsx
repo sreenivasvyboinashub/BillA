@@ -174,8 +174,15 @@ export default function ResultPage() {
               Your bill had clear text and structure.
             </p>
           </div>
-        </div>
+          <a
+          href="/dashboard"
+          className="inline-block mt-8 ml-4 bg-black text-white py-3 px-6 rounded-lg text-lg hover:bg-gray-800 transition"
+        >
+          Dashboard →
+          </a>
 
+        </div>
+            
         {/* JSON TOGGLE */}
         {!isRaw && (
           <button
@@ -191,7 +198,9 @@ export default function ResultPage() {
             {JSON.stringify(data, null, 2)}
           </pre>
         )}
-
+        
+      </div>
+        
         {/* Scan Again */}
         <a
           href="/upload"
@@ -199,7 +208,7 @@ export default function ResultPage() {
         >
           Scan Another Bill →
         </a>
-      </div>
+        
     </div>
   );
 }
